@@ -1,49 +1,40 @@
 // types/authTypes.ts
 import { User } from './userTypes'; // User tipinizin olduğu yolu doğrulayın
+import { ApiResponse } from './apiTypes'; // Yeni oluşturduğumuz merkezi tipi import ediyoruz.
 
 export interface LoginPayload {
-  loginIdentifier: string; // API'nizin beklediği alan adlarına göre ayarlayın
+  loginIdentifier: string;
   password: string;
-  // otp_kodu?: string; // Eğer 2FA varsa eklenebilir
 }
 
 export interface Tokens {
   accessToken: string;
-  accessExpiresIn: string; // Örn: "1h", "3600s" veya backend'den gelen expiration timestamp
-  // refreshToken?: string; // Refresh token kullanıyorsanız
-  // refreshExpiresIn?: string;
+  accessExpiresIn: string;
 }
 
+// Başarılı bir giriş işleminde 'veri' alanının nasıl görüneceğini tanımlar.
 export interface LoginSuccessData {
   tokenlar: Tokens;
   kullanici: User;
-  twoFactorRequired?: boolean; // Bu alan backend'den geliyorsa
+  twoFactorRequired?: boolean;
 }
 
-export interface LoginResponse {
-  basarili: boolean;
-  mesaj: string;
-  veri?: LoginSuccessData; // Başarısız durumda 'veri' olmayabilir
-}
-
-// Bu interface AuthContext tarafından sağlanacak değerleri tanımlar
-export interface AuthContextType {
-  user: User | null;
-  accessToken: string | null;
-  isLoading: boolean;       // İlk yükleme ve auth işlemleri sırasında true
-  isAuthenticated: boolean; // <<--- BU ALAN EKLENDİ! Kullanıcının giriş yapıp yapmadığını belirtir
-  login: (payload: LoginPayload) => Promise<{ success: boolean; message: string; twoFactorRequired?: boolean }>;
-  logout: () => Promise<void>; // Logout da async olabilir (API call vb.)
-  // refreshToken?: () => Promise<boolean>; // Gerekirse refresh token fonksiyonu
-}
-
+// Başarılı bir oturum kontrolünde 'veri' alanının nasıl görüneceğini tanımlar.
 export interface CurrentUserSuccessData {
-  tokenlar: Tokens; // API'niz oturum kontrolünde de token gönderiyorsa bu gerekli
   kullanici: User;
 }
 
-export interface CurrentUserResponse {
-  basarili: boolean;
-  mesaj: string;
-  veri?: CurrentUserSuccessData; // Başarısız durumda 'veri' olmayabilir
+// Artık ApiResponse<T> kullanarak tipleri daha temiz bir şekilde tanımlıyoruz.
+export type LoginResponse = ApiResponse<LoginSuccessData>;
+export type CurrentUserResponse = ApiResponse<CurrentUserSuccessData>;
+
+
+// AuthContextType aynı kalabilir, çünkü kullandığı tipleri yukarıda tanımladık.
+export interface AuthContextType {
+  user: User | null;
+  accessToken: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (payload: LoginPayload) => Promise<{ success: boolean; message: string; twoFactorRequired?: boolean }>;
+  logout: () => Promise<void>;
 }

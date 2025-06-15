@@ -14,18 +14,30 @@ const AuthGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
+    // AuthContext hala ilk oturumu kontrol ediyorsa bekle.
     if (isLoading) {
-      return; 
+      return;
     }
+
+    // Yükleme bittiğinde, kullanıcı giriş yapmamışsa login sayfasına yönlendir.
     if (!isAuthenticated) {
-      router.push('/login');
+      router.replace('/login'); // Geçmişe eklemeden yönlendir.
     }
-  }, [isAuthenticated, isLoading, router]);
+    
+  }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'inherit' }}>Yetki Kontrol Ediliyor...</div>;
-  if (!isAuthenticated) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'inherit' }}>Giriş Sayfasına Yönlendiriliyor...</div>;
+  // Yükleme tamamlandıysa VE kullanıcı giriş yapmışsa, korumalı içeriği göster.
+  if (!isLoading && isAuthenticated) {
+    return <>{children}</>;
+  }
 
-  return <>{children}</>;
+  // Diğer tüm durumlarda (ilk yükleme anı veya yönlendirme öncesi),
+  // genel bir yükleme ekranı göster. Bu, erken yönlendirmeyi önler.
+  return (
+    <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
 };
 
 // ClientOnly bileşeni aynı kalabilir.

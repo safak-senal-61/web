@@ -1,16 +1,17 @@
 // components/rooms/TrendingRooms.tsx
 import React from 'react';
-import RoomCard, { Room } from './RoomCard'; // RoomCard ve Room tipini import et
+import RoomCard from './RoomCard';
+import { Room } from '../../types/roomTypes'; // RoomCard'dan import ediliyorsa bu satır gereksiz olabilir.
 import { FaArrowRight, FaFire } from 'react-icons/fa';
 import Link from 'next/link';
 
 interface TrendingRoomsProps {
-  rooms: Room[]; // Trend odaların listesi
+  rooms: Room[];
 }
 
 const TrendingRooms: React.FC<TrendingRoomsProps> = ({ rooms }) => {
   if (!rooms || rooms.length === 0) {
-    return null; // Trend oda yoksa hiçbir şey gösterme
+    return null;
   }
 
   return (
@@ -20,28 +21,28 @@ const TrendingRooms: React.FC<TrendingRoomsProps> = ({ rooms }) => {
           <FaFire className="w-6 h-6 sm:w-7 sm:h-7 text-red-500 dark:text-red-400 mr-2.5 sm:mr-3" />
           Trend Odalar
         </h2>
-        {/* <Link href="/rooms/trending" legacyBehavior> // Tüm trendleri görmek için ayrı bir sayfa olabilir
-          <a className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center group">
-            Tümünü Gör <FaArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-          </a>
-        </Link> */}
+        {/* Opsiyonel "Tümünü Gör" linki, gerekirse açılabilir.
+        <Link 
+          href="/rooms/trending"
+          className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center group"
+        >
+          Tümünü Gör <FaArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+        */}
       </div>
 
-      {/* Yatay Kaydırılabilir Alan */}
-      {/* 
-        Not: Tailwind CSS ile yatay scrollbar'ı gizlemek için özel utility veya plugin gerekebilir.
-        Basit bir çözüm: sarmalayıcıya `overflow-x-auto` ve içindeki elemanlara `flex-shrink-0`.
-        Scrollbar'ın görünümü için `custom-scrollbar` class'ını kullanabiliriz (Drawer'daki gibi).
-      */}
-      <div className="flex overflow-x-auto space-x-4 sm:space-x-6 pb-4 custom-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6"> {/* Negatif margin ve padding ile kenarlara taşma */}
-        {rooms.slice(0, 5).map(room => ( // En fazla 5 trend oda gösterelim
-          <div key={room.id} className="flex-shrink-0 w-72 sm:w-80 md:w-[340px]"> {/* Kart genişliği */}
+      <div className="flex overflow-x-auto space-x-4 sm:space-x-6 pb-4 custom-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6">
+        {rooms.slice(0, 5).map(room => (
+          <div key={room.id} className="flex-shrink-0 w-72 sm:w-80 md:w-[340px]">
             <RoomCard room={room} />
           </div>
         ))}
-        {/* Eğer daha fazla trend oda varsa "Tümünü Gör" kartı eklenebilir */}
         {rooms.length > 5 && (
-           <Link href="/rooms/trending" className="flex-shrink-0 w-72 sm:w-80 md:w-[340px] h-full group">
+           // DÜZELTME: `legacyBehavior` ve içindeki `<a>` kaldırıldı.
+           <Link 
+             href="/rooms/trending" 
+             className="flex-shrink-0 w-72 sm:w-80 md:w-[340px] h-full group"
+           >
              <div className="h-full flex flex-col items-center justify-center p-6 rounded-xl shadow-lg 
                            bg-slate-100 dark:bg-slate-800/50 
                            border border-slate-200 dark:border-slate-700 

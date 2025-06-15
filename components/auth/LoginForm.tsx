@@ -1,76 +1,60 @@
 // components/auth/LoginForm.tsx
 import { useState, FormEvent } from 'react';
-import { useAuth } from '../../hooks/useAuth'; // Kendi hook yolunuzu doğrulayın
+import { useAuth } from '../../hooks/useAuth';
 import { useRouter } from 'next/router';
-import { FaUserAlt, FaLock, FaGoogle, FaArrowRight, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa'; // FaSpinner eklendi
+import { FaUserAlt, FaLock, FaGoogle, FaArrowRight, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 import Link from 'next/link';
+import { API_BASE_URL } from '../../lib/apiClient'; // API ana adresini import ediyoruz
 
 const LoginForm = () => {
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formLoading, setFormLoading] = useState(false); // AuthContext'teki isLoading ile karışmaması için farklı isim
-  const { login } = useAuth(); // login fonksiyonunu AuthContext'ten alıyoruz
+  const [formLoading, setFormLoading] = useState(false);
+  const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setFormLoading(true);
-    console.log("%c[LoginForm] handleSubmit START. formLoading: true", "color: #B8860B;"); // DarkGoldenRod
 
     if (!loginIdentifier || !password) {
       setError('Kullanıcı adı/E-posta ve şifre alanları zorunludur.');
       setFormLoading(false);
-      console.log("%c[LoginForm] Validation Error. formLoading: false", "color: #B8860B;");
       return;
     }
 
-    console.log("%c[LoginForm] Calling login function from AuthContext...", "color: #B8860B;");
     const result = await login({ loginIdentifier, password });
-    // login fonksiyonu AuthContext'teki user ve isAuthenticated state'lerini güncelleyecek.
-    // O state'lerin güncellenmesi biraz zaman alabilir (asenkron).
-    console.log(`%c[LoginForm] AuthContext login result: success=${result.success}, message=${result.message}, 2FA=${result.twoFactorRequired}`, "color: #B8860B;");
 
-    setFormLoading(false); // Yönlendirmeden önce formu tekrar aktif hale getir
-    console.log("%c[LoginForm] handleSubmit AFTER login call. formLoading: false", "color: #B8860B;");
+    setFormLoading(false);
 
     if (result.success) {
-      if (result.twoFactorRequired) {
-        console.log("%c[LoginForm] 2FA required. Setting error. TODO: Redirect to 2FA page.", "color: #B8860B;");
-        setError("İki faktörlü doğrulama gerekiyor. Bu özellik henüz tamamlanmadı.");
-        // Örnek: router.push(`/verify-2fa?userId=${result.userId}`); // userId gibi bir bilgiye ihtiyaç olabilir
-      } else {
-        console.log("%c[LoginForm] Login successful! ATTEMPTING router.push('/home')...", "color: green; font-weight: bold; font-size: 14px;");
-        // Yönlendirme burada yapılıyor. AuthContext'in güncellenmiş state'i
-        // /home sayfası render edilirken AuthGuard tarafından okunacak.
-        router.push('/home');
-        // Bu log genellikle görünmez çünkü sayfa hemen değişir.
-        // console.log("%c[LoginForm] AFTER router.push('/home') call.", "color: green;");
-      }
+      const redirectPath = (router.query.redirect as string) || '/home';
+      router.push(redirectPath);
     } else {
-      console.log(`%c[LoginForm] Login FAILED. Error: ${result.message}`, "color: red;");
       setError(result.message);
     }
+  };
+
+  // Google ile giriş için yönlendirme fonksiyonu
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl w-full max-w-xs mx-auto">
       <div className="p-6">
-      <div className="text-center mb-5">
-  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-3 shadow-lg">
-    <img
-      src="/assets/logo.png"
-      alt="Logo"
-      className="w-8 h-8 object-contain"
-    />
-  </div>
-  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-    WebsaChat
-  </h1>
-  <p className="text-sm text-slate-300 mt-1">Hoş Geldiniz</p>
-</div>
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-3 shadow-lg">
+            <img src="/assets/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+          </div>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            WebsaChat
+          </h1>
+          <p className="text-sm text-slate-300 mt-1">Hoş Geldiniz</p>
+        </div>
 
         {error && (
           <div className="bg-red-500/10 border border-red-400/30 text-red-300 p-3 rounded-lg mb-4 text-sm">
@@ -118,10 +102,7 @@ const LoginForm = () => {
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-400 transition-colors duration-200"
               disabled={formLoading}
             >
-              {showPassword ? 
-                <FaEyeSlash className="h-4 w-4" /> : 
-                <FaEye className="h-4 w-4" />
-              }
+              {showPassword ? <FaEyeSlash className="h-4 w-4" /> : <FaEye className="h-4 w-4" />}
             </button>
           </div>
 
@@ -132,7 +113,7 @@ const LoginForm = () => {
           >
             {formLoading ? (
               <div className="flex items-center space-x-2">
-                <FaSpinner className="w-4 h-4 animate-spin" /> {/* FaSpinner kullanıldı */}
+                <FaSpinner className="w-4 h-4 animate-spin" />
                 <span>Giriş Yapılıyor...</span>
               </div>
             ) : (
@@ -153,8 +134,9 @@ const LoginForm = () => {
           </div>
         </div>
 
+        {/* GÜNCELLENMİŞ GOOGLE BUTONU */}
         <button
-          onClick={() => alert('Google ile Giriş Yap özelliği henüz aktif değil.')}
+          onClick={handleGoogleLogin} // onClick olayı handleGoogleLogin fonksiyonunu çağırır
           disabled={formLoading}
           className="w-full py-2.5 px-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] text-sm"
         >
@@ -163,13 +145,13 @@ const LoginForm = () => {
         </button>
 
         <div className="mt-4 text-center space-y-2">
-          <a 
-            href="#" // Şifremi unuttum için uygun bir yola yönlendirilmeli
+          <Link
+            href="/forgot-password"
             className="block text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200 hover:underline"
           >
             Şifremi Unuttum
-          </a>
-          <Link href="/register/" className="text-blue-400 hover:text-blue-300">
+          </Link>
+          <Link href="/register" className="text-sm text-blue-400 hover:text-blue-300">
             Hesabınız yok mu? Kayıt olun
           </Link>
         </div>
