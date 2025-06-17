@@ -1,4 +1,4 @@
-// pages/index.tsx veya ilgili sayfa dosyanız
+// pages/home/index.tsx
 import { useAuth } from '../../hooks/useAuth';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -12,19 +12,17 @@ import {
   FaArrowRight,
   FaFire,
   FaClock,
-  FaStar,
-  FaCog,
-  FaBell
 } from 'react-icons/fa';
 import { Header } from '@/components/layout/Header';
+import { User } from '@/types/userTypes';
+import { Tokens } from '@/types/authTypes';
 
-// Tailwind CSS'in dinamik sınıfları doğru derleyebilmesi için renk sınıflarını bir obje içinde topluyoruz.
 const homeCards = [
     {
         title: 'Sohbet Odaları',
         description: 'Canlı sohbet odalarına katılın ve yeni insanlarla tanışın.',
         icon: FaComments,
-        href: '/chat-rooms',
+        href: '/voice-rooms', // voice-rooms olarak güncellendi
         stats: '25 aktif oda',
         isPopular: true,
         isNew: false,
@@ -41,11 +39,11 @@ const homeCards = [
         colorClasses: 'green'
     },
     {
-        title: 'Sesli Odalar',
-        description: 'Gerçek zamanlı sesli iletişim kurun.',
-        icon: FaVolumeUp,
-        href: '/voice-rooms',
-        stats: '8 aktif oda',
+        title: 'Kullanıcıları Keşfet', // 'Sesli Odalar' yerine daha genel bir keşif
+        description: 'Yeni arkadaşlar bulun ve topluluklara katılın.',
+        icon: FaUsers, // İkon değiştirildi
+        href: '/search-users', // Yönlendirme güncellendi
+        stats: 'Binlerce kullanıcı',
         isPopular: false,
         isNew: false,
         colorClasses: 'orange'
@@ -62,7 +60,6 @@ const homeCards = [
     },
 ];
 
-// Renk haritası (Tailwind JIT derlemesi için)
 const colorMap = {
     blue: {
         gradientFrom: 'from-blue-500', gradientTo: 'to-blue-600',
@@ -95,56 +92,46 @@ const colorMap = {
 };
 
 const HomePage = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated, handleOauthCallback } = useAuth();
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState('');
 
-  // OAuth Yönlendirmesini ve Kimlik Doğrulama Durumunu Yöneten Merkezi useEffect
   useEffect(() => {
-    // Router hazır olana kadar bekle
-    if (!router.isReady) {
-        return;
-    }
+    // router hazır değilse işlem yapma
+    if (!router.isReady) return;
 
-    const { accessToken, refreshToken, user: userString, error } = router.query;
+    const { accessToken, user: userString } = router.query;
 
-    // --- Durum 1: OAuth Hata ---
-    if (error) {
-        console.error('OAuth ile giriş hatası:', decodeURIComponent(error as string));
-        // URL'yi temizle ve login sayfasına yönlendir
-        router.replace('/login?error=' + error);
-        return;
-    }
-
-    // --- Durum 2: Başarılı OAuth Yönlendirmesi ---
+    // OAuth callback'inden geliniyorsa
     if (accessToken && userString) {
-        console.log('OAuth verileri yakalandı. Tokenlar kaydediliyor...');
-        try {
-            // Tokenları ve kullanıcı bilgisini localStorage'a kaydet
-            localStorage.setItem('accessToken', accessToken as string);
-            localStorage.setItem('refreshToken', refreshToken as string);
-            localStorage.setItem('user', userString as string);
-            
-            // Oturum durumunu yenilemek için sayfayı URL parametreleri olmadan tekrar yükle.
-            // Bu, useAuth hook'unun yeni verileri okumasını sağlar.
-            window.location.assign('/home');
-
-        } catch (e) {
-            console.error('Tokenlar kaydedilirken hata:', e);
-            router.replace('/login?error=token_storage_failed');
-        }
-        return; // İşlem tamamlandı, bu effect'in geri kalanını çalıştırma
+      try {
+        const oauthUser = JSON.parse(userString as string) as User;
+        const oauthTokens: Tokens = {
+          accessToken: accessToken as string,
+          accessExpiresIn: ''
+        };
+        handleOauthCallback({ kullanici: oauthUser, tokenlar: oauthTokens });
+        // URL'yi temizle ve döngüyü kır
+        router.replace('/home', undefined, { shallow: true });
+        return;
+      } catch (e) {
+        console.error("OAuth veri işleme hatası:", e);
+        router.push('/login');
+        return;
+      }
     }
 
-    // --- Durum 3: Normal Sayfa Yüklemesi (OAuth Yönlendirmesi Değil) ---
-    // Yükleme tamamlandıysa ve kullanıcı yoksa login'e yönlendir.
-    if (!isLoading && !user) {
-        console.log('Kullanıcı bulunamadı, login sayfasına yönlendiriliyor.');
-        router.push('/login?redirect=/home');
+    // Auth context'i hala veri yüklüyorsa bekle
+    if (isLoading) {
+      return;
     }
-  }, [router.isReady, router.query, user, isLoading, router]);
 
-  // Zamanı güncelleyen useEffect (değişiklik yok)
+    // Yükleme bittiğinde, kullanıcı doğrulanmamışsa login'e yönlendir
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/home');
+    }
+  }, [router.isReady, router.query, isLoading, isAuthenticated, handleOauthCallback]);
+
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -161,25 +148,23 @@ const HomePage = () => {
   const mainContentPaddingTop = "pt-20";
   const pageContainerClasses = "container mx-auto px-4 sm:px-6 lg:px-8 pb-12";
 
-  if (isLoading || !user) { // Kullanıcı bilgisi gelene kadar yükleme ekranı göster
+  // Auth durumu netleşene kadar veya kullanıcı bilgisi gelene kadar yükleme ekranı göster
+  if (isLoading || !user) {
     return (
-      <>
-        <Header />
-        <div className={`flex justify-center items-center h-[calc(100vh-4rem)] ${mainContentPaddingTop}`}>
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 dark:border-blue-400 mb-4"></div>
-            <p className="text-slate-700 dark:text-slate-300 text-lg">Oturum durumu kontrol ediliyor...</p>
-          </div>
+      <div className="flex justify-center items-center h-screen bg-white dark:bg-slate-900">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 dark:border-blue-400 mb-4"></div>
+          <p className="text-slate-700 dark:text-slate-300 text-lg">Oturum kontrol ediliyor...</p>
         </div>
-      </>
+      </div>
     );
   }
 
+  // Bu noktadan sonra `user` objesinin dolu olduğundan eminiz.
   return (
     <>
       <Header />
       <main className={`animate-fade-in space-y-10 ${mainContentPaddingTop} ${pageContainerClasses}`}>
-
         {/* Hero Section */}
         <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-600/10 dark:via-purple-600/10 dark:to-pink-600/10 rounded-3xl -z-10"></div>
@@ -235,14 +220,13 @@ const HomePage = () => {
         {/* Features Grid */}
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-slate-100 dark:text-white">Özellikler</h2>
+            <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Özellikler</h2>
             <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400">
               <FaFire className="w-5 h-5 text-red-500 dark:text-red-400" />
               <span className="text-sm font-medium">Popüler</span>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {homeCards.map((card) => {
                 const colors = colorMap[card.colorClasses as keyof typeof colorMap];
                 return (
@@ -253,19 +237,27 @@ const HomePage = () => {
                   >
                     <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradientFrom} ${colors.gradientTo} ${colors.darkGradientFrom} ${colors.darkGradientTo} opacity-0 group-hover:opacity-10 transition-opacity duration-300 -z-0`}></div>
                     <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradientFrom} ${colors.gradientTo} ${colors.darkGradientFrom} ${colors.darkGradientTo} opacity-0 group-hover:opacity-5 blur-xl transition-opacity duration-300 -z-0`}></div>
-
                     <div className="relative p-6 shadow-lg hover:shadow-xl transform group-hover:-translate-y-1 transition-all duration-300 bg-white/80 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200 dark:border-slate-700 group-hover:border-slate-300 dark:group-hover:border-slate-600 h-full flex flex-col rounded-2xl">
-                      {/* ... card content ... */}
+                      {/* Kart içeriği... */}
+                      <div className="flex-grow">
+                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${colors.gradientFrom} ${colors.gradientTo} flex items-center justify-center mb-4 shadow-lg`}>
+                              <card.icon className="w-6 h-6 text-white"/>
+                          </div>
+                          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{card.title}</h3>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">{card.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-4 text-xs text-slate-500 dark:text-slate-400">
+                           <span>{card.stats}</span>
+                           <div className="flex items-center text-blue-500 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
+                              <span className="mr-1">Git</span>
+                              <FaArrowRight/>
+                           </div>
+                      </div>
                     </div>
                   </Link>
                 )
             })}
           </div>
-        </section>
-
-        {/* Quick Actions */}
-        <section className="bg-white/60 dark:bg-slate-800/50 backdrop-blur-lg rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-lg">
-            {/* ... quick actions content ... */}
         </section>
       </main>
     </>

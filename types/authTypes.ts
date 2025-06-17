@@ -1,6 +1,6 @@
 // types/authTypes.ts
 import { User } from './userTypes'; // User tipinizin olduğu yolu doğrulayın
-import { ApiResponse } from './apiTypes'; // Yeni oluşturduğumuz merkezi tipi import ediyoruz.
+import { ApiResponse } from './apiTypes'; // Merkezi API tipini import ediyoruz.
 
 export interface LoginPayload {
   loginIdentifier: string;
@@ -12,7 +12,7 @@ export interface Tokens {
   accessExpiresIn: string;
 }
 
-// Başarılı bir giriş işleminde 'veri' alanının nasıl görüneceğini tanımlar.
+// Başarılı bir giriş/OAuth işleminde 'veri' alanının nasıl görüneceğini tanımlar.
 export interface LoginSuccessData {
   tokenlar: Tokens;
   kullanici: User;
@@ -24,17 +24,18 @@ export interface CurrentUserSuccessData {
   kullanici: User;
 }
 
-// Artık ApiResponse<T> kullanarak tipleri daha temiz bir şekilde tanımlıyoruz.
+// ApiResponse<T> kullanarak tipleri daha temiz bir şekilde tanımlıyoruz.
 export type LoginResponse = ApiResponse<LoginSuccessData>;
 export type CurrentUserResponse = ApiResponse<CurrentUserSuccessData>;
 
-
-// AuthContextType aynı kalabilir, çünkü kullandığı tipleri yukarıda tanımladık.
+// AuthContextType arayüzü
 export interface AuthContextType {
   user: User | null;
   accessToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (payload: LoginPayload) => Promise<{ success: boolean; message: string; twoFactorRequired?: boolean }>;
-  logout: () => Promise<void>;
+  logout: (shouldRedirect?: boolean) => Promise<void>;
+  // HATA BURADAYDI, YENİ FONKSİYONUN TİPİNİ EKLİYORUZ:
+  handleOauthCallback: (data: LoginSuccessData) => void; 
 }

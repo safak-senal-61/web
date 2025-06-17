@@ -1,62 +1,54 @@
 // pages/settings/index.tsx
-import { useAuth } from '../../hooks/useAuth'; // Adjust path
+import { useAuth } from '../../hooks/useAuth';
 import { useRouter } from 'next/router';
 import { useEffect, useState, ChangeEvent } from 'react';
 import React from 'react';
 
 // Constants
-import { settingsCategories as allCategories } from '../../constants/settingsConfig'; // Adjust
+import { settingsCategories as allCategories } from '../../constants/settingsConfig';
 
 // Layout and structural components
-import LoadingState from '../../components/settings/LoadingState'; // Adjust
-import SettingsLayout from '../../components/settings/SettingsLayout'; // Adjust
+import LoadingState from '../../components/settings/LoadingState';
+import SettingsLayout from '../../components/settings/SettingsLayout';
 
 // Form components
-import ProfileSettings from '../../components/settings/forms/ProfileSettings'; // Adjust
-import NotificationSettings from '../../components/settings/forms/NotificationSettings'; // Adjust
-import SecuritySettings from '../../components/settings/forms/SecuritySettings'; // Adjust
-import AppearanceSettings from '../../components/settings/forms/AppearanceSettings'; // Adjust
-import AudioSettings from '../../components/settings/forms/AudioSettings'; // Adjust
-import GameSettings from '../../components/settings/forms/GameSettings'; // Adjust
+import ProfileSettings from '../../components/settings/forms/ProfileSettings';
+import NotificationSettings from '../../components/settings/forms/NotificationSettings';
+import SecuritySettings from '../../components/settings/forms/SecuritySettings';
+import AppearanceSettings from '../../components/settings/forms/AppearanceSettings';
+import AudioSettings from '../../components/settings/forms/AudioSettings';
+import GameSettings from '../../components/settings/forms/GameSettings';
 
 // Icons
 import { FaEye, FaEyeSlash, FaMoon, FaSun, FaDesktop } from 'react-icons/fa';
-// Note: ThemeContext is NOT directly used here, AppearanceSettings uses it.
 
-// Define the Settings type
-// 'theme' is removed as it's handled globally by ThemeContext
+// Settings type
 export interface SettingsData {
-  // Profile
   nickname: string;
   bio: string;
   showOnlineStatus: boolean;
   showLevel: boolean;
-  // Notifications
   messageNotifications: boolean;
   soundNotifications: boolean;
   desktopNotifications: boolean;
   emailNotifications: boolean;
-  // Security
   twoFactorEnabled: boolean;
   showEmail: boolean;
   blockUnknownUsers: boolean;
   newPassword: string;
-  // Appearance (theme is global)
   language: string;
   animations: boolean;
   compactMode: boolean;
-  // Audio
   microphoneVolume: number;
   speakerVolume: number;
   echoCancellation: boolean;
   noiseSuppression: boolean;
-  // Gaming
   autoJoinGames: boolean;
   gameNotifications: boolean;
   performanceMode: boolean;
 }
 
-const settingsPagePath = '/settings'; // Or your actual settings page path
+const settingsPagePath = '/settings';
 
 const SettingsPage = () => {
   const { user, isLoading: authIsLoading } = useAuth();
@@ -65,7 +57,6 @@ const SettingsPage = () => {
   const defaultCategory = allCategories.length > 0 ? allCategories[0].id : 'profile';
   const [activeCategory, setActiveCategory] = useState(defaultCategory);
 
-  // Initial settings state (theme removed)
   const [settings, setSettings] = useState<SettingsData>({
     nickname: '',
     bio: '',
@@ -101,25 +92,18 @@ const SettingsPage = () => {
     }
   }, [user, authIsLoading, router]);
 
-  // Initialize settings from user (e.g., nickname, bio)
-  // and potentially load other preferences from backend
   useEffect(() => {
     if (user) {
       setSettings(prev => ({
         ...prev,
         nickname: user.nickname || '',
         bio: user.bio || '',
-        // TODO: Load other user-specific settings (language, animations, etc.) from API if they are persisted
-        // For example:
-        // language: user.preferences?.language || 'tr',
-        // animations: user.preferences?.animations !== undefined ? user.preferences.animations : true,
       }));
     }
-    const timer = setTimeout(() => setPageLoading(false), 300); // Shortened for quicker load feel
+    const timer = setTimeout(() => setPageLoading(false), 300);
     return () => clearTimeout(timer);
   }, [user]);
 
-  // Handle active category based on URL hash
   useEffect(() => {
     if (router.isReady) {
       const hash = window.location.hash.substring(1);
@@ -128,7 +112,6 @@ const SettingsPage = () => {
           setActiveCategory(hash);
         }
       }
-      // Optional: You can also check router.query.category if you prefer query params
     }
   }, [router.isReady, router.asPath, activeCategory]);
 
@@ -142,13 +125,9 @@ const SettingsPage = () => {
   const handleSave = async () => {
     setIsSaving(true);
     console.log('Saving settings:', settings);
-    // TODO: API call to save settings (nickname, bio, language, animations, etc.)
-    // Exclude theme from this save payload as it's handled by ThemeContext (localStorage)
-    // const { theme, ...settingsToSave } = settings; // This line would be wrong as theme is not in settings
-    // await api.saveUserSettings(settings);
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSaving(false);
-    alert('Ayarlar kaydedildi!'); // Replace with a proper notification/toast
+    alert('Ayarlar kaydedildi!');
   };
 
   const renderCategoryContent = () => {
@@ -160,7 +139,7 @@ const SettingsPage = () => {
       case 'security':
         return (
           <SecuritySettings
-            settings={settings} // Pass the relevant part of settings if needed
+            settings={settings}
             onSettingChange={handleSettingChange}
             showPassword={showPassword}
             onToggleShowPassword={() => setShowPassword(!showPassword)}
@@ -170,7 +149,6 @@ const SettingsPage = () => {
       case 'appearance':
         return (
           <AppearanceSettings
-            // Theme is global, pass other appearance settings
             language={settings.language}
             animations={settings.animations}
             onLanguageChange={(value) => handleSettingChange('language', value)}
@@ -192,23 +170,26 @@ const SettingsPage = () => {
   }
 
   if (!user) {
-    return null; // Redirect is handled by useEffect
+    return null;
   }
 
   return (
-    <SettingsLayout
-      onSave={handleSave}
-      isSaving={isSaving}
-      categories={allCategories}
-      activeCategory={activeCategory}
-      onCategoryChange={(newCategory) => {
-        setActiveCategory(newCategory);
-        // Update URL hash for better UX (back button, bookmarking)
-        router.push(`${settingsPagePath}#${newCategory}`, undefined, { shallow: true });
-      }}
-    >
-      {renderCategoryContent()}
-    </SettingsLayout>
+    // --- YENİ EKLENEN SARMALAYICI ---
+    // Bu div, sayfa içeriğini ortalayacak ve kenarlardan boşluk bırakacaktır.
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <SettingsLayout
+        onSave={handleSave}
+        isSaving={isSaving}
+        categories={allCategories}
+        activeCategory={activeCategory}
+        onCategoryChange={(newCategory) => {
+          setActiveCategory(newCategory);
+          router.push(`${settingsPagePath}#${newCategory}`, undefined, { shallow: true });
+        }}
+      >
+        {renderCategoryContent()}
+      </SettingsLayout>
+    </div>
   );
 };
 
