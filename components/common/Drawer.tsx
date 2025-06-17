@@ -8,13 +8,13 @@ import {
   FaUsers,
   FaVolumeUp,
   FaShoppingCart,
-  FaTimes,
+  FaTimes, // Mobil için kapatma ikonu
   FaCog,
   FaSignOutAlt,
-  FaChevronLeft,
-  FaChevronRight,
+  FaChevronLeft, // Daraltma ikonu
+  FaChevronRight, // Genişletme ikonu
   FaSearch,
-  FaUser, // Default avatar icon
+  FaUser,
 } from 'react-icons/fa';
 import { User as UserType } from '../../types/userTypes';
 import { useAuth } from '../../hooks/useAuth';
@@ -54,54 +54,40 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
     setIsMounted(true);
   }, []);
 
-  // Resize handler
   useEffect(() => {
     if (!isMounted) return;
-
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setIsCollapsed(false);
-      }
+      if (window.innerWidth < 768) setIsCollapsed(false);
     };
-
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, [isMounted]);
 
-  // Body scroll lock for mobile
   useEffect(() => {
     if (!isMounted) return;
-
     if (isOpen && window.innerWidth < 768) {
       const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
-
       return () => {
         const bodyStyle = document.body.style;
         const scrollPosition = parseInt(bodyStyle.top || '0') * -1;
-        
         bodyStyle.position = '';
         bodyStyle.top = '';
         bodyStyle.width = '';
         bodyStyle.overflow = '';
-        
         window.scrollTo(0, scrollPosition);
       };
     }
   }, [isOpen, isMounted]);
 
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   const handleToggleCollapse = () => {
-    if (window.innerWidth >= 768) {
-      setIsCollapsed(!isCollapsed);
-    }
+    if (window.innerWidth >= 768) setIsCollapsed(!isCollapsed);
   };
 
   const handleLogout = async () => {
@@ -110,14 +96,11 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
   };
 
   const profileHref = user ? `/profile/` : '/login';
-
-  // Dinamik class'lar
   const drawerWidthClass = isCollapsed && window.innerWidth >= 768 ? 'md:w-20' : 'w-72 sm:w-80';
   const drawerTransitionClass = isOpen ? 'translate-x-0' : '-translate-x-full';
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-40 md:hidden"
@@ -125,7 +108,6 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
           aria-hidden="true"
         />
       )}
-
       <aside
         className={`fixed top-0 left-0 h-full shadow-2xl border-r 
                    border-slate-200/70 dark:border-slate-700/30 
@@ -137,7 +119,6 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
                    text-slate-800 dark:text-white`}
         aria-label="Ana Menü"
       >
-        {/* Arka plan desenleri */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50/30 via-white/20 to-slate-50/30 dark:from-slate-800/40 dark:via-slate-900/30 dark:to-slate-800/40 backdrop-blur-md dark:backdrop-blur-xl opacity-70 dark:opacity-100" />
         <div
           className="absolute inset-0 opacity-30 dark:opacity-50"
@@ -145,37 +126,40 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2394a3b8' fill-opacity='0.03' dark:fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
           }}
         />
-
         <div className="relative z-10 h-full flex flex-col">
           {/* Header */}
           <div className={`flex items-center justify-between border-b 
                          border-slate-200/70 dark:border-slate-700/30 
                          flex-shrink-0 h-16
                          ${isCollapsed && window.innerWidth >= 768 ? 'px-2.5' : 'px-4'}`}>
+            
+            {/* Logo sadece menü açıkken görünür */}
             {(!isCollapsed || window.innerWidth < 768) && (
               <Link
                 href="/"
                 onClick={onClose}
                 className="text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300"
               >
-                
+                WebsaChat
               </Link>
             )}
-            
-         
 
-            <div className="flex items-center">
+            {/* BUTONLARIN OLDUĞU ALAN DÜZENLENDİ */}
+            <div className={`flex items-center ${isCollapsed && window.innerWidth >= 768 ? 'w-full justify-center' : ''}`}>
+              {/* Masaüstü için Daralt/Genişlet Butonu */}
               <button
                 onClick={handleToggleCollapse}
-                className={`p-2.5 rounded-lg transition-all duration-300 backdrop-blur-sm
+                className={`p-2.5 rounded-lg transition-all duration-300
                            text-slate-500 dark:text-slate-400 
                            hover:bg-slate-200 dark:hover:bg-slate-700/40 
                            hover:text-slate-700 dark:hover:text-white hover:scale-105
                            ${window.innerWidth < 768 ? 'hidden' : 'flex'}`}
                 aria-label={isCollapsed ? 'Menüyü genişlet' : 'Menüyü daralt'}
               >
-                {isCollapsed ? <FaChevronRight className="w-10 h-7" /> : <FaChevronLeft className="w-10 h-7" />}
+                {isCollapsed ? <FaChevronRight className="w-4 h-4" /> : <FaChevronLeft className="w-4 h-4" />}
               </button>
+
+              {/* Mobil için Kapatma Butonu */}
               <button
                 onClick={onClose}
                 className={`p-2.5 rounded-lg transition-all duration-300
@@ -190,7 +174,9 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
             </div>
           </div>
 
-          {/* User Profile Section */}
+          {/* User Profile, Navigation ve Bottom Actions kısımları aynı kalacak */}
+          {/* ... (geri kalan tüm kod aynı) ... */}
+           {/* User Profile Section */}
           {user && (
             <div className={`border-b border-slate-200/70 dark:border-slate-700/30 
                            flex-shrink-0
@@ -205,7 +191,7 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
                   <div className="relative">
                     {user.profilePictureUrl ? (
                       <Image
-                        src={user.profilePictureUrl}
+                      src={user.profilePictureUrl}
                         alt={`${user.nickname || user.username || ''}'s avatar`}
                         width={40}
                         height={40}
@@ -380,32 +366,14 @@ const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
       </aside>
 
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(100, 116, 139, 0.3);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(100, 116, 139, 0.5);
-        }
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(71, 85, 105, 0.4);
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(71, 85, 105, 0.6);
-        }
-        .dark .custom-scrollbar {
-          scrollbar-color: rgba(71, 85, 105, 0.4) transparent;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.5); }
+        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.3) transparent; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.4); }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.6); }
+        .dark .custom-scrollbar { scrollbar-color: rgba(71, 85, 105, 0.4) transparent; }
       `}</style>
     </>
   );
