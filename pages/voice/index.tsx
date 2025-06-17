@@ -1,16 +1,26 @@
 // pages/voice/index.tsx
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic'; // DİNAMİK IMPORT İÇİN GEREKLİ
 import { useAuth } from '../../hooks/useAuth';
 import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { FaPlusCircle, FaSatelliteDish, FaExclamationTriangle } from 'react-icons/fa';
+import { FaPlusCircle, FaSatelliteDish, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
 
 import { getLiveStreams } from '../../services/streamService';
-import { Stream } from '../../types/streamTypes';
+import { Stream, AgoraConfig } from '../../types/streamTypes';
 import StreamCard from '@/components/streams/StreamCard';
-import CreateStreamForm from '@/components/streams/CreateStreamForm';
+
+// CreateStreamForm component'ini sadece istemci tarafında yüklenecek şekilde dinamik olarak import ediyoruz.
+const CreateStreamForm = dynamic(() => import('@/components/streams/CreateStreamForm'), {
+    ssr: false, // Sunucu tarafında render etmeyi engelle
+    loading: () => ( // Form yüklenirken gösterilecek içerik
+        <div className="flex justify-center items-center h-40">
+            <FaSpinner className="animate-spin h-8 w-8 text-slate-400" />
+        </div>
+    ),
+});
 
 const VoiceStreamsPage = () => {
   const { user, isLoading: authIsLoading } = useAuth();
@@ -18,27 +28,24 @@ const VoiceStreamsPage = () => {
 
   const [streams, setStreams] = useState<Stream[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // Hata durumunu yönetmek için state
+  const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
-    // Auth kontrolü
     if (!authIsLoading && !user) {
       router.push('/login?redirect=/voice');
       return;
     }
 
-    // Canlı yayınları çekme
     if (user) {
       const fetchStreams = async () => {
         setIsLoading(true);
-        setError(null); // Her yeni istekte hatayı sıfırla
+        setError(null);
         try {
           const response = await getLiveStreams();
           if (response.basarili && response.veri) {
             setStreams(response.veri.yayinlar);
           } else {
-            // API'dan başarısız bir yanıt gelirse
             setError(response.mesaj || "Yayınlar alınamadı.");
           }
         } catch (error) {
@@ -50,15 +57,21 @@ const VoiceStreamsPage = () => {
       };
       fetchStreams();
     }
-  }, [user, authIsLoading, router]);
+  }, [user, authIsLoading]);
 
-  const handleStreamCreated = (newStream: Stream) => {
+  const handleStreamCreated = (data: { yayin: Stream; agora: AgoraConfig }) => {
     setIsCreateModalOpen(false);
-    // Yeni oluşturulan yayının detay sayfasına yönlendir
-    router.push(`/voice/${newStream.id}`);
+    const { yayin, agora } = data;
+    
+    router.push({
+        pathname: `/voice/${yayin.id}`,
+        query: {
+            agoraAppId: agora.appId,
+            agoraToken: agora.token
+        }
+    });
   };
 
-  // Yükleme durumu için ekran
   if (authIsLoading || isLoading) {
     return (
       <>
@@ -95,7 +108,6 @@ const VoiceStreamsPage = () => {
           </Button>
         </div>
 
-        {/* Hata Durumu Gösterimi */}
         {error && (
             <div className="text-center py-16 bg-red-500/10 text-red-400 rounded-xl border border-red-500/30">
                 <FaExclamationTriangle className="mx-auto h-12 w-12 mb-4" />
@@ -104,7 +116,6 @@ const VoiceStreamsPage = () => {
             </div>
         )}
 
-        {/* İçerik Gösterimi (Hata Yoksa) */}
         {!error && (
             streams.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -134,10 +145,13 @@ const VoiceStreamsPage = () => {
               Yayın bilgilerini girerek hemen canlı yayına geç.
             </DialogDescription>
           </DialogHeader>
-          <CreateStreamForm
-            onSuccess={handleStreamCreated}
-            onCancel={() => setIsCreateModalOpen(false)}
-          />
+          {/* Sadece modal açıkken CreateStreamForm'u render etmeye çalış. */}
+          {isCreateModalOpen && (
+            <CreateStreamForm
+                onSuccess={handleStreamCreated}
+                onCancel={() => setIsCreateModalOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>
