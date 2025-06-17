@@ -37,7 +37,7 @@ interface MenuItem {
 }
 
 const menuItemsConfig: MenuItem[] = [
-  { name: 'Sesli Sohbet Odaları', href: '/voice-rooms', icon: FaVolumeUp, color: 'text-orange-600', darkColor: 'dark:text-orange-400', gradient: 'from-orange-500 to-amber-500', darkGradient: 'dark:from-orange-600 dark:to-amber-400' },
+  { name: 'Sesli Sohbet Odaları', href: '/voice', icon: FaVolumeUp, color: 'text-orange-600', darkColor: 'dark:text-orange-400', gradient: 'from-orange-500 to-amber-500', darkGradient: 'dark:from-orange-600 dark:to-amber-400' },
   { name: 'Oyunlar', href: '/games', icon: FaGamepad, color: 'text-green-600', darkColor: 'dark:text-green-400', gradient: 'from-green-500 to-emerald-500', darkGradient: 'dark:from-green-600 dark:to-emerald-400' },
   { name: 'Sohbetler', href: '/chats', icon: FaUsers, color: 'text-purple-600', darkColor: 'dark:text-purple-400', gradient: 'from-purple-500 to-violet-500', darkGradient: 'dark:from-purple-600 dark:to-violet-400' },
   { name: 'Kullanıcı Ara', href: '/search-users', icon: FaSearch, color: 'text-teal-600', darkColor: 'dark:text-teal-400', gradient: 'from-teal-500 to-cyan-500', darkGradient: 'dark:from-teal-600 dark:to-cyan-400' },

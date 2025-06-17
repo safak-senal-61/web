@@ -22,7 +22,7 @@ const homeCards = [
         title: 'Sohbet Odaları',
         description: 'Canlı sohbet odalarına katılın ve yeni insanlarla tanışın.',
         icon: FaComments,
-        href: '/voice-rooms',
+        href: '/voice',
         stats: '25 aktif oda',
         isPopular: true,
         isNew: false,
