@@ -41,7 +41,7 @@ const menuItemsConfig: MenuItem[] = [
   { name: 'Oyunlar', href: '/games', icon: FaGamepad, color: 'text-green-600', darkColor: 'dark:text-green-400', gradient: 'from-green-500 to-emerald-500', darkGradient: 'dark:from-green-600 dark:to-emerald-400' },
   { name: 'Sohbetler', href: '/chats', icon: FaUsers, color: 'text-purple-600', darkColor: 'dark:text-purple-400', gradient: 'from-purple-500 to-violet-500', darkGradient: 'dark:from-purple-600 dark:to-violet-400' },
   { name: 'Kullanıcı Ara', href: '/search-users', icon: FaSearch, color: 'text-teal-600', darkColor: 'dark:text-teal-400', gradient: 'from-teal-500 to-cyan-500', darkGradient: 'dark:from-teal-600 dark:to-cyan-400' },
-  { name: 'Mağaza', href: '/store', icon: FaShoppingCart, color: 'text-pink-600', darkColor: 'dark:text-pink-400', gradient: 'from-pink-500 to-rose-500', darkGradient: 'dark:from-pink-600 dark:to-rose-400' },
+  { name: 'Mağaza', href: '/transactions', icon: FaShoppingCart, color: 'text-pink-600', darkColor: 'dark:text-pink-400', gradient: 'from-pink-500 to-rose-500', darkGradient: 'dark:from-pink-600 dark:to-rose-400' },
 ];
 
 const Drawer: React.FC<DrawerProps> = ({ isOpen, onClose, user }) => {
