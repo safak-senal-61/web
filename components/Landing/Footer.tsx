@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Zap, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Code, BookOpen, Users, Award } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -9,14 +9,16 @@ const Footer = () => {
           {/* Logo and Description */}
           <div>
             <div className="flex items-center mb-4">
-              <Zap className="h-8 w-8 text-purple-400" />
-              <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                WebsaChat
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 rounded-lg">
+                <Code className="h-6 w-6 text-white" />
+              </div>
+              <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                WebsaChat Academy
               </span>
             </div>
             <p className="text-gray-400 mb-6">
-              WebsaChat ile sosyalleş, sesli sohbet et, mini oyunlar oyna ve yeni arkadaşlıklar kur.
-              Herkes için en iyi sosyal medya deneyimi.
+              Kodlama öğren, arkadaşlarınla sosyalleş, sesli sohbet odalarında buluş ve birlikte projeler geliştir.
+              Geleceğini kodlama ile şekillendir!
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -36,19 +38,47 @@ const Footer = () => {
           
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-bold mb-4">Hızlı Erişim</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center">
+              <BookOpen className="h-5 w-5 text-purple-400 mr-2" />
+              Eğitim
+            </h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Anasayfa</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Bootcamp'ler</a>
               </li>
               <li>
-                <a href="#features" className="text-gray-400 hover:text-white transition-colors">Özellikler</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Kurslar</a>
               </li>
               <li>
-                <a href="#testimonials" className="text-gray-400 hover:text-white transition-colors">Yorumlar</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Projeler</a>
               </li>
               <li>
-                <a href="#download" className="text-gray-400 hover:text-white transition-colors">İndir</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Sertifikalar</a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Mentorlar</a>
+              </li>
+            </ul>
+          </div>
+          
+          {/* Support */}
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center">
+              <Users className="h-5 w-5 text-purple-400 mr-2" />
+              Topluluk
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Sesli Sohbet Odaları</a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Öğrenci Forumu</a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Etkinlikler</a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">Yarışmalar</a>
               </li>
               <li>
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a>
@@ -56,54 +86,43 @@ const Footer = () => {
             </ul>
           </div>
           
-          {/* Support */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">Destek</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Yardım Merkezi</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Gizlilik Politikası</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Kullanım Şartları</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Sıkça Sorulan Sorular</a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">İletişim</a>
-              </li>
-            </ul>
-          </div>
-          
           {/* Contact */}
           <div>
-            <h3 className="text-lg font-bold mb-4">İletişim</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center">
+              <Award className="h-5 w-5 text-purple-400 mr-2" />
+              İletişim
+            </h3>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <Mail className="h-5 w-5 text-purple-400 mr-3 mt-0.5" />
-                <span className="text-gray-400">info@websachat.com</span>
+                <span className="text-gray-400">academy@websachat.com</span>
               </li>
               <li className="flex items-start">
                 <Phone className="h-5 w-5 text-purple-400 mr-3 mt-0.5" />
-                <span className="text-gray-400">+90 (212) 123 45 67</span>
+                <span className="text-gray-400">+90 (212) 555 01 23</span>
               </li>
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-purple-400 mr-3 mt-0.5" />
                 <span className="text-gray-400">
-                  Levent, İstanbul, Türkiye
+                  Maslak, İstanbul, Türkiye
                 </span>
               </li>
             </ul>
+            
+            <div className="mt-6">
+              <h4 className="text-sm font-semibold text-gray-300 mb-3">Destek Saatleri</h4>
+              <p className="text-gray-400 text-sm">
+                Pazartesi - Cuma: 09:00 - 18:00<br />
+                Cumartesi: 10:00 - 16:00
+              </p>
+            </div>
           </div>
         </div>
         
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              &copy; {new Date().getFullYear()} WebsaChat. Tüm hakları saklıdır.
+              &copy; {new Date().getFullYear()} WebsaChat Academy. Tüm hakları saklıdır.
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-500 hover:text-white transition-colors text-sm">

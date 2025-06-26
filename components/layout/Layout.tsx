@@ -1,6 +1,7 @@
 // components/layout/Layout.tsx
 import React, { useState, ReactNode } from 'react';
 import Drawer from '../common/Drawer'; // Drawer component'inizin yolu
+import { Header } from './Header'; // Header component'ini import et
 import { useAuth } from '../../hooks/useAuth'; // useAuth hook'unuzun yolu
 
 interface LayoutProps {
@@ -37,23 +38,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
 
         {/* Ana içerik alanı */}
-        <main className={`
-          flex-1 
-          flex 
-          flex-col 
-          overflow-hidden 
-          transition-all 
-          duration-300 
-          ease-in-out
-          ${user && isDrawerOpen ? 'md:ml-64' : 'md:ml-0'} // Drawer açıkken md ekranlarda sola kaydırma (isteğe bağlı)
-                                                          // Eğer Drawer'ınız sabit genişlikteyse (örn: w-64)
-                                                          // Veya Drawer'ınız overlay ise bu ml- class'ına gerek yok.
-                                                          // Sizin yapınızda Drawer overlay gibi duruyor, ml-0 kalabilir.
-          ${user ? 'md:ml-0' : ''} // Kullanıcı varsa ve drawer hep overlay ise bu satır kalabilir veya kaldırılabilir.
-                                    // Eğer drawer'ınız her zaman overlay ise (içeriği itmiyorsa),
-                                    // bu satıra ve yukarıdaki ml-64'e gerek yok.
-          max-w-full 
-        `}>
+        <main className="flex-1 flex flex-col overflow-hidden max-w-full">
+          {/* Header'ı burada ekle ve drawer toggle fonksiyonunu geç */}
+          <Header onMenuClick={() => setIsDrawerOpen(true)} />
           {/* 
             Header olmadığı için doğrudan içeriğe odaklanıyoruz.
             _app.tsx içindeki ana sarmalayıcı zaten temel arka planı sağlıyor.

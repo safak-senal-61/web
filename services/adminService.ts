@@ -7,7 +7,15 @@ import { Game } from '../types/gameTypes';
 import { User } from '@/types/userTypes';
 
 // --- YÖNETİCİ KAYDI ---
-export const registerAdmin = async (payload: any): Promise<ApiResponse<{ kullanici: User }>> => {
+export interface AdminRegistrationRequest {
+    username: string;
+    email: string;
+    password: string;
+    nickname: string;
+    registrationSecret: string;
+}
+
+export const registerAdmin = async (payload: AdminRegistrationRequest): Promise<ApiResponse<{ kullanici: User }>> => {
     return (await apiClient.post('/auth/register-admin', payload)).data;
 };
 

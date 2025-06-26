@@ -1,27 +1,24 @@
-// components/admin/AdminRegistrationForm.tsx
+// components/admin/AdminLoginForm.tsx
 
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { registerAdmin } from '@/services/authService';
-import { FaUserShield, FaEnvelope, FaLock, FaKey, FaUserPlus, FaEye, FaEyeSlash } from 'react-icons/fa';
 
-const AdminRegistrationForm: React.FC = () => {
+import { FaUserShield, FaLock, FaSignInAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '@/hooks/useAuth';
+
+const AdminLoginForm: React.FC = () => {
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    nickname: '',
-    registrationSecret: ''
+    loginIdentifier: '',
+    password: ''
   });
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showSecret, setShowSecret] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,21 +28,17 @@ const AdminRegistrationForm: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    setSuccess(null);
     
     try {
-      const response = await registerAdmin(formData);
-      if (response.basarili) {
-        setSuccess(response.mesaj);
-        // Başarılı kayıt sonrası 2 saniye bekleyip giriş sayfasına yönlendir
-        setTimeout(() => {
-          router.push('/admin/login');
-        }, 2000);
+      const result = await login(formData);
+      if (result.success) {
+        // Admin girişi başarılı, admin paneline yönlendir
+        router.push('/admin');
       } else {
-        setError(response.mesaj);
+        setError(result.message);
       }
     } catch (error) {
-      setError('Kayıt sırasında bir hata oluştu.');
+      setError('Giriş sırasında bir hata oluştu.');
     } finally {
       setIsLoading(false);
     }
@@ -59,10 +52,10 @@ const AdminRegistrationForm: React.FC = () => {
           </div>
           <div className="space-y-2">
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-              Admin Kaydı
+              Admin Girişi
             </CardTitle>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Yeni yönetici hesabı oluşturun
+              Yönetici paneline erişim için giriş yapın
             </p>
           </div>
         </CardHeader>
@@ -71,49 +64,14 @@ const AdminRegistrationForm: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-3">
               <label className="text-sm font-semibold text-slate-300 tracking-wide">
-                Kullanıcı Adı
+                Kullanıcı Adı / Email
               </label>
               <div className="relative group">
                 <FaUserShield className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-purple-400 transition-colors duration-200" />
                 <Input
-                  name="username"
-                  placeholder="Kullanıcı adınızı girin"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                  className="pl-12 pr-4 py-3 bg-slate-800/60 border-slate-600/50 text-white placeholder-slate-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 rounded-xl transition-all duration-200 hover:bg-slate-800/80"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-slate-300 tracking-wide">
-                Email
-              </label>
-              <div className="relative group">
-                <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-purple-400 transition-colors duration-200" />
-                <Input
-                  name="email"
-                  type="email"
-                  placeholder="Email adresinizi girin"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="pl-12 pr-4 py-3 bg-slate-800/60 border-slate-600/50 text-white placeholder-slate-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 rounded-xl transition-all duration-200 hover:bg-slate-800/80"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-slate-300 tracking-wide">
-                Görünen Ad
-              </label>
-              <div className="relative group">
-                <FaUserShield className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-purple-400 transition-colors duration-200" />
-                <Input
-                  name="nickname"
-                  placeholder="Görünen adınızı girin"
-                  value={formData.nickname}
+                  name="loginIdentifier"
+                  placeholder="Kullanıcı adı veya email"
+                  value={formData.loginIdentifier}
                   onChange={handleChange}
                   required
                   className="pl-12 pr-4 py-3 bg-slate-800/60 border-slate-600/50 text-white placeholder-slate-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 rounded-xl transition-all duration-200 hover:bg-slate-800/80"
@@ -130,7 +88,7 @@ const AdminRegistrationForm: React.FC = () => {
                 <Input
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Güçlü bir şifre oluşturun"
+                  placeholder="Şifrenizi girin"
                   value={formData.password}
                   onChange={handleChange}
                   required
@@ -146,40 +104,9 @@ const AdminRegistrationForm: React.FC = () => {
               </div>
             </div>
             
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-slate-300 tracking-wide">
-                Gizli Kayıt Anahtarı
-              </label>
-              <div className="relative group">
-                <FaKey className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-purple-400 transition-colors duration-200" />
-                <Input
-                  name="registrationSecret"
-                  type={showSecret ? "text" : "password"}
-                  placeholder="Admin kayıt anahtarını girin"
-                  value={formData.registrationSecret}
-                  onChange={handleChange}
-                  required
-                  className="pl-12 pr-12 py-3 bg-slate-800/60 border-slate-600/50 text-white placeholder-slate-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 rounded-xl transition-all duration-200 hover:bg-slate-800/80"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSecret(!showSecret)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-purple-400 transition-colors duration-200"
-                >
-                  {showSecret ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-            
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 backdrop-blur-sm animate-pulse">
                 <p className="text-red-300 text-sm font-medium">{error}</p>
-              </div>
-            )}
-            
-            {success && (
-              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 backdrop-blur-sm animate-pulse">
-                <p className="text-green-300 text-sm font-medium">{success}</p>
               </div>
             )}
             
@@ -191,12 +118,12 @@ const AdminRegistrationForm: React.FC = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-3">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span className="tracking-wide">Kaydediliyor...</span>
+                  <span className="tracking-wide">Giriş yapılıyor...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center space-x-3">
-                  <FaUserPlus className="text-lg" />
-                  <span className="tracking-wide">Admin Oluştur</span>
+                  <FaSignInAlt className="text-lg" />
+                  <span className="tracking-wide">Giriş Yap</span>
                 </div>
               )}
             </Button>
@@ -204,12 +131,12 @@ const AdminRegistrationForm: React.FC = () => {
           
           <div className="mt-8 text-center">
             <p className="text-slate-400 text-sm">
-              Zaten hesabınız var mı?{' '}
+              Admin kaydı için{' '}
               <button
-                onClick={() => router.push('/admin/login')}
+                onClick={() => router.push('/admin/register')}
                 className="text-purple-400 hover:text-purple-300 underline decoration-2 underline-offset-2 transition-all duration-200 hover:decoration-purple-300 font-medium"
               >
-                Giriş yapın
+                buraya tıklayın
               </button>
             </p>
           </div>
@@ -218,4 +145,4 @@ const AdminRegistrationForm: React.FC = () => {
   );
 };
 
-export default AdminRegistrationForm;
+export default AdminLoginForm;

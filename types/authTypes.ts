@@ -36,6 +36,6 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   login: (payload: LoginPayload) => Promise<{ success: boolean; message: string; twoFactorRequired?: boolean }>;
   logout: (shouldRedirect?: boolean) => Promise<void>;
-  // HATA BURADAYDI, YENİ FONKSİYONUN TİPİNİ EKLİYORUZ:
-  handleOauthCallback: (data: LoginSuccessData) => void; 
+  handleOauthCallback: (data: LoginSuccessData) => Promise<void>;
+  logoutFromDevice: (deviceId: string) => Promise<void>;
 }

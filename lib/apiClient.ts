@@ -2,7 +2,7 @@
 
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
-export const API_BASE_URL = 'https://3000-firebase-websachat-backend-1748272624869.cluster-6vyo4gb53jczovun3dxslzjahs.cloudworkstations.dev';
+export const API_BASE_URL = 'https://3000-firebase-websachat-bacendgit-1750692398761.cluster-axf5tvtfjjfekvhwxwkkkzsk2y.cloudworkstations.dev';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -99,12 +99,16 @@ apiClient.interceptors.response.use(
         processQueue(refreshError, null);
         
         console.error("Token yenilenemedi, çıkış yapılıyor.", refreshError);
-        window.localStorage.removeItem('accessToken');
+        // localStorage'ı tamamen temizle
+        window.localStorage.clear();
         delete apiClient.defaults.headers.common['Authorization'];
 
         if (typeof window !== 'undefined') {
+          // AuthContext'e token süresinin dolduğunu bildir
+          window.dispatchEvent(new CustomEvent('auth:token-expired'));
+          
           // Kullanıcıyı login sayfasına yönlendir
-          window.location.href = '/login';
+          window.location.href = '/login?message=session-expired';
         }
 
         return Promise.reject(refreshError);

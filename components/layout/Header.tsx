@@ -181,7 +181,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 >
                   <Avatar className="h-10 w-10 border-2 border-transparent">
                     <AvatarImage 
-                      src={user.avatarUrl || undefined} 
+                      src={user.profilePictureUrl || undefined} 
                       alt={user.nickname || user.username || 'Kullanıcı'} 
                     />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold">
@@ -206,7 +206,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 <DropdownMenuLabel className="font-normal p-3 sm:p-4">
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-transparent">
-                      <AvatarImage src={user.avatarUrl || undefined} />
+                      <AvatarImage src={user.profilePictureUrl || undefined} />
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                         {getInitials(user.nickname || user.username)}
                       </AvatarFallback>
@@ -293,7 +293,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
               variant="ghost"
               size="icon"
               onClick={onMenuClick}
-              className="text-slate-600 dark:text-slate-400
+              className="md:hidden text-slate-600 dark:text-slate-400
                          hover:text-slate-900 dark:hover:text-white
                          hover:bg-slate-200/70 dark:hover:bg-slate-700/50
                          hover:scale-105 transition-all duration-300 rounded-xl

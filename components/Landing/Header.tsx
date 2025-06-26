@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Users, Gamepad2, Gift, Zap, Menu, X, Download, LogIn, Plus } from 'lucide-react';
-import router from 'next/router';
+import { MessageSquare, Users, Gamepad2, Gift, Zap, Menu, X, Download, LogIn, Plus, Code, BookOpen, Star } from 'lucide-react';
+import { useRouter } from 'next/router';
 import Image from 'next/image';
 
 // TypewriterEffect component
@@ -43,6 +43,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({ texts }) => {
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -223,39 +224,49 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             <div className="w-full lg:w-1/2 text-center lg:text-left">
+              <div className="mb-4 sm:mb-6">
+                <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border border-purple-200">
+                  ✨ Kodlama yolculuğunuz burada başlıyor. Bootcamp'lerimizi keşfedin!
+                </span>
+              </div>
+              
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 sm:mb-8">
-                <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-violet-600 bg-clip-text text-transparent">WebsaChat</span>
+                <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-violet-600 bg-clip-text text-transparent">WebsaChat'in</span>
+                <br />
+                <span className="text-slate-800">En Kapsamlı</span>
+                <br />
+                <span className="text-slate-800">Online Akademisi</span>
               </h1>
               
               <div className="h-20 sm:h-24 md:h-28 mb-6 sm:mb-8">
                 <TypewriterEffect 
                   texts={[
+                    "Sınırsız Kurs İmkanı",
+                    "Canlı Bootcamp'ler",
+                    "Uzman Destek",
                     "Sesli Sohbet Deneyimi",
                     "Eğlenceli Mini Oyunlar",
-                    "Samimi Arkadaşlıklar",
-                    "Ödüller Ve Kazançlar",
-                    "Kepsi Senin Uygulamanda",
-                    "Websachat İle Sosyalleş"
+                    "Geleceğinizi Birlikte Kodlayalım"
                   ]}
                 />
               </div>
               
               <p className="text-slate-600 text-lg sm:text-xl mb-8 sm:mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                Arkadaşlarınla bağlantı kur, eğlenceli sohbetlere katıl ve yeni insanlarla tanış.
-                WebsaChat ile sosyal medya deneyimini bir üst seviyeye taşı.
+                Sınırsız kurs, canlı bootcamp'ler ve uzman destek ile arkadaşlarınla bağlantı kur, 
+                eğlenceli sohbetlere katıl ve geleceğinizi birlikte kodlayın!
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <button 
-                  onClick={() => scrollToSection('#download')}
+                  onClick={() => router.push('/register')}
                   className="relative px-8 py-4 rounded-full font-semibold text-white overflow-hidden group shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-violet-600"></div>
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                   <div className="relative z-10 flex items-center justify-center gap-2">
-                    <Download className="h-5 w-5" />
-                    <span>Şimdi İndir</span>
+                    <Plus className="h-5 w-5" />
+                    <span>Hemen Katıl</span>
                   </div>
                 </button>
                 
@@ -297,12 +308,12 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
           {[
-            { icon: MessageSquare, title: "Sesli Sohbet", color: "purple", bgColor: "from-purple-500 to-purple-600" },
-            { icon: Gamepad2, title: "Mini Oyunlar", color: "pink", bgColor: "from-pink-500 to-pink-600" },
-            { icon: Users, title: "Arkadaşlıklar", color: "violet", bgColor: "from-violet-500 to-violet-600" },
-            { icon: Gift, title: "Ödüller", color: "indigo", bgColor: "from-indigo-500 to-indigo-600" },
-            { icon: Zap, title: "Sosyalleş", color: "purple", bgColor: "from-purple-500 to-pink-500" },
-            { icon: Plus, title: "Ve Daha Fazlsı", color: "blue", bgColor: "from-purple-500 to-pink-500" }
+            { icon: Code, title: "Bootcamp'ler", color: "purple", bgColor: "from-purple-500 to-purple-600" },
+            { icon: BookOpen, title: "Sınırsız Kurs", color: "pink", bgColor: "from-pink-500 to-pink-600" },
+            { icon: Users, title: "Uzman Destek", color: "violet", bgColor: "from-violet-500 to-violet-600" },
+            { icon: MessageSquare, title: "Sesli Sohbet", color: "indigo", bgColor: "from-indigo-500 to-indigo-600" },
+            { icon: Gamepad2, title: "Mini Oyunlar", color: "purple", bgColor: "from-purple-500 to-pink-500" },
+            { icon: Star, title: "Premium Deneyim", color: "blue", bgColor: "from-purple-500 to-pink-500" }
           ].map((feature) => (
             <div key={feature.title} className="bg-white/80 backdrop-blur-sm p-4 sm:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center group hover:-translate-y-2 border border-purple-50">
               <div className={`bg-gradient-to-r ${feature.bgColor} p-3 sm:p-4 rounded-2xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>

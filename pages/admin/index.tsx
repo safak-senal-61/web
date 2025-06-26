@@ -1,33 +1,52 @@
 // pages/admin/index.tsx
 
 import React from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
+import Head from 'next/head';
+import AdminDashboard from '@/components/admin/AdminDashboard';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-const AdminDashboardPage = () => {
-  return (
-    <AdminLayout>
-      <h1 className="text-3xl font-bold text-white mb-6">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Stat Kartları (Örnek) */}
-        <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-            <h3 className="text-slate-400 text-sm">Toplam Kullanıcı</h3>
-            <p className="text-3xl font-bold text-white">1,234</p>
-        </div>
-         <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-            <h3 className="text-slate-400 text-sm">Aktif Yayın</h3>
-            <p className="text-3xl font-bold text-white">15</p>
-        </div>
-         <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-            <h3 className="text-slate-400 text-sm">Bekleyen Rapor</h3>
-            <p className="text-3xl font-bold text-red-400">5</p>
-        </div>
-         <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
-            <h3 className="text-slate-400 text-sm">Günlük Gelir</h3>
-            <p className="text-3xl font-bold text-green-400">₺1,250</p>
+const AdminDashboardPage: React.FC = () => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/admin/login');
+    } else if (!isLoading && isAuthenticated && user?.role !== 'ADMIN') {
+      // Kullanıcı giriş yapmış ama admin değil
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoading, router, user]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400">Yükleniyor...</p>
         </div>
       </div>
-    </AdminLayout>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== 'ADMIN') {
+    return null; // Redirect will happen in useEffect
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Admin Dashboard | Gaming Platform</title>
+        <meta name="description" content="Yönetici paneli ana sayfası" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
+      <AdminDashboard />
+    </>
   );
 };
+
+
 
 export default AdminDashboardPage;

@@ -15,6 +15,7 @@ import SettingsLayout from '../../components/settings/SettingsLayout';
 import ProfileSettings from '../../components/settings/forms/ProfileSettings';
 import NotificationSettings from '../../components/settings/forms/NotificationSettings';
 import SecuritySettings from '../../components/settings/forms/SecuritySettings';
+import DeviceSettings from '../../components/settings/forms/DeviceSettings';
 import AppearanceSettings from '../../components/settings/forms/AppearanceSettings';
 import AudioSettings from '../../components/settings/forms/AudioSettings';
 import GameSettings from '../../components/settings/forms/GameSettings';
@@ -146,6 +147,8 @@ const SettingsPage = () => {
             icons={{ FaEye, FaEyeSlash }}
           />
         );
+      case 'devices':
+        return <DeviceSettings />;
       case 'appearance':
         return (
           <AppearanceSettings
