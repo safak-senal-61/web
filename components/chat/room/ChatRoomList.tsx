@@ -1,27 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { Search, Filter, Users, Clock, Star, Loader2, X, Sparkles } from 'lucide-react';
 import { ChatRoom } from '../../../types/chatroomTypes';
 import JoinChatRoom from '../forms/JoinChatRoom';
 import LeaveChatRoom from '../forms/LeaveChatRoom';
 import MessageList from '../messages/MessageList';
 import ChatRoomFilters from './ChatRoomFilters';
-import { getChatRooms, searchChatRooms } from '../../../services/chatroomService';
+import { getChatRooms, searchChatRooms, deleteChatRoom, joinChatRoom } from '../../../services/chatroomService';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface ChatRoomListProps {
   onRoomSelect?: (room: ChatRoom) => void;
 }
 
 // ChatRoomCard component with simplified actions
-const ChatRoomCard = ({ room, onClick, onDelete, onJoin, onLeave, onViewMessages }: {
+const ChatRoomCard = ({ room, onDelete, onJoin, onLeave, onViewMessages }: {
   room: ChatRoom;
-  onClick?: () => void;
   onDelete?: (roomId: string) => void;
   onJoin?: (room: ChatRoom) => void;
   onLeave?: (room: ChatRoom) => void;
   onViewMessages?: (room: ChatRoom) => void;
 }) => {
+  const { user } = useAuth();
+  const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
+  
+  // Kullanıcının bu odada olup olmadığını kontrol et
+  const isUserInRoom = user && Array.isArray(room.activeParticipants) && room.activeParticipants.some(participant => 
+    participant === user.id
+  );
+  
+  // Kullanıcının oda sahibi olup olmadığını kontrol et
+  const isOwner = user && user.id === room.owner.id;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -38,18 +50,23 @@ const ChatRoomCard = ({ room, onClick, onDelete, onJoin, onLeave, onViewMessages
   };
 
   const getParticipantPercentage = (room: ChatRoom): number => {
-    return Math.round((room.activeParticipants.length / room.maxParticipants) * 100);
+    const participantCount = Array.isArray(room.activeParticipants) ? room.activeParticipants.length : 0;
+    return Math.round((participantCount / room.maxParticipants) * 100);
   };
 
   const handleDeleteRoom = async () => {
     try {
       setIsDeleting(true);
-      // Mock delete operation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      if (onDelete) {
-        onDelete(room.id);
+      const response = await deleteChatRoom(room.id);
+      
+      if (response.basarili) {
+        if (onDelete) {
+          onDelete(room.id);
+        }
+        setShowDeleteConfirm(false);
+      } else {
+        alert(response.mesaj || 'Oda silinirken bir hata oluştu.');
       }
-      setShowDeleteConfirm(false);
     } catch (error) {
       console.error('Oda silinirken hata:', error);
       alert('Oda silinirken bir hata oluştu.');
@@ -58,15 +75,12 @@ const ChatRoomCard = ({ room, onClick, onDelete, onJoin, onLeave, onViewMessages
     }
   };
 
-  const isRoomFull = room.activeParticipants.length >= room.maxParticipants;
+  const isRoomFull = Array.isArray(room.activeParticipants) ? room.activeParticipants.length >= room.maxParticipants : false;
   const participantPercentage = getParticipantPercentage(room);
 
   return (
     <>
-      <div 
-        onClick={onClick}
-        className="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden hover:scale-[1.02] hover:bg-white/95"
-      >
+      <div className="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden hover:scale-[1.02] hover:bg-white/95">
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 to-purple-50/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
@@ -110,19 +124,21 @@ const ChatRoomCard = ({ room, onClick, onDelete, onJoin, onLeave, onViewMessages
                 {room.type === 'PUBLIC' ? '🌍 Herkese Açık' : '🔒 Özel'}
               </div>
               
-              {/* Delete button (mock - always show for demo) */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDeleteConfirm(true);
-                }}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
-                title="Odayı Sil"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+              {/* Delete button - sadece oda sahibi için */}
+              {isOwner && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                  title="Odayı Sil"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
@@ -131,7 +147,7 @@ const ChatRoomCard = ({ room, onClick, onDelete, onJoin, onLeave, onViewMessages
             <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-xl px-3 py-2 border border-gray-100">
               <Users className="h-4 w-4 text-blue-500" />
               <div className="text-sm">
-                <span className="font-bold text-gray-800">{room.activeParticipants.length}</span>
+                <span className="font-bold text-gray-800">{Array.isArray(room.activeParticipants) ? room.activeParticipants.length : 0}</span>
                   <span className="text-gray-500">/{room.maxParticipants}</span>
               </div>
             </div>
@@ -191,42 +207,82 @@ const ChatRoomCard = ({ room, onClick, onDelete, onJoin, onLeave, onViewMessages
           <div className="space-y-2">
             {/* Join Button */}
             <button 
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                onJoin && onJoin(room);
+                if (isRoomFull || room.status !== 'ACTIVE' || isJoining) return;
+                
+                console.log('Join button clicked for room:', room.id);
+                console.log('User:', user?.id);
+                console.log('Room details:', room);
+                
+                try {
+                  setIsJoining(true);
+                  console.log('Attempting to join room...');
+                  
+                  const response = await joinChatRoom(room.id);
+                  console.log('Join response:', response);
+                  
+                  if (response.basarili) {
+                    console.log('Successfully joined room');
+                    // Başarılı katılım durumunda callback'i çağır
+                    onJoin && onJoin(room);
+                    // Next.js router ile navigation
+                    router.push(`/chat/room/${room.id}`);
+                  } else {
+                    console.error('Join failed:', response.mesaj);
+                    alert(response.mesaj || 'Odaya katılırken bir hata oluştu.');
+                  }
+                } catch (error) {
+                  console.error('Join error:', error);
+                  alert('Ağ hatası: Odaya katılırken bir hata oluştu. Lütfen internet bağlantınızı kontrol edin.');
+                } finally {
+                  setIsJoining(false);
+                }
               }}
               className={`w-full py-3 px-6 rounded-2xl font-semibold transition-all duration-300 shadow-md ${
-                isRoomFull || room.status !== 'ACTIVE'
+                isRoomFull || room.status !== 'ACTIVE' || isJoining
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]'
               }`}
-              disabled={isRoomFull || room.status !== 'ACTIVE'}
+              disabled={isRoomFull || room.status !== 'ACTIVE' || isJoining}
             >
-              {isRoomFull ? '🚫 Oda Dolu' : room.status !== 'ACTIVE' ? '⏸️ Pasif' : '🚀 Katıl'}
+              {isJoining ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Katılıyor...</span>
+                </div>
+              ) : isRoomFull ? '🚫 Oda Dolu' : room.status !== 'ACTIVE' ? '⏸️ Pasif' : '🚀 Katıl'}
             </button>
 
             {/* Secondary Actions */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onLeave && onLeave(room);
-                }}
-                className="py-2 px-4 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium transition-all duration-200 text-sm"
-                title="Odadan Ayrıl"
-              >
-                🚪 Ayrıl
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewMessages && onViewMessages(room);
-                }}
-                className="py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl font-medium transition-all duration-200 text-sm"
-                title="Mesajları Görüntüle"
-              >
-                💬 Mesajlar
-              </button>
+            <div className={`grid gap-2 ${isUserInRoom && !isOwner ? 'grid-cols-2' : isOwner ? 'grid-cols-1' : 'grid-cols-1'}`}>
+              {/* Ayrıl butonu - sadece odada olan ve oda sahibi olmayan kullanıcılar için */}
+              {isUserInRoom && !isOwner && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLeave && onLeave(room);
+                  }}
+                  className="py-2 px-4 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium transition-all duration-200 text-sm"
+                  title="Odadan Ayrıl"
+                >
+                  🚪 Ayrıl
+                </button>
+              )}
+              
+              {/* Mesajlar butonu - sadece oda sahibi veya odada olan kullanıcılar için */}
+              {(isOwner || isUserInRoom) && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewMessages && onViewMessages(room);
+                  }}
+                  className="py-2 px-4 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl font-medium transition-all duration-200 text-sm"
+                  title="Mesajları Görüntüle"
+                >
+                  💬 Mesajlar
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -367,9 +423,13 @@ const ChatRoomList: React.FC<ChatRoomListProps> = ({ onRoomSelect }) => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'popular':
-          return b.activeParticipants.length - a.activeParticipants.length;
+          const aParticipants = Array.isArray(a.activeParticipants) ? a.activeParticipants.length : 0;
+          const bParticipants = Array.isArray(b.activeParticipants) ? b.activeParticipants.length : 0;
+          return bParticipants - aParticipants;
       case 'participants':
-         return b.activeParticipants.length - a.activeParticipants.length;
+          const aParticipantsCount = Array.isArray(a.activeParticipants) ? a.activeParticipants.length : 0;
+          const bParticipantsCount = Array.isArray(b.activeParticipants) ? b.activeParticipants.length : 0;
+          return bParticipantsCount - aParticipantsCount;
         case 'newest':
         default:
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -509,7 +569,6 @@ const ChatRoomList: React.FC<ChatRoomListProps> = ({ onRoomSelect }) => {
               <ChatRoomCard
                 key={room.id}
                 room={room}
-                onClick={() => onRoomSelect?.(room)}
                 onDelete={handleRoomDelete}
                 onJoin={(room) => {
                   setSelectedRoom(room);

@@ -21,7 +21,8 @@ import {
   Globe, 
   Lock,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  MessageCircle
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -64,7 +65,16 @@ const ChatRoomPage: NextPage = () => {
         setRoom(response.veri.oda);
         // Check if user is already in the room
         const activeParticipants = response.veri.oda.activeParticipants;
-        setHasJoined(Array.isArray(activeParticipants) && activeParticipants.includes(user?.id || '') || false);
+        const isOwner = user?.id === response.veri.oda.owner.id;
+        const isInRoom = Array.isArray(activeParticipants) && activeParticipants.includes(user?.id || '');
+        
+        // Oda sahibi otomatik olarak katılmış sayılır
+        setHasJoined(isOwner || isInRoom);
+        
+        // Eğer oda sahibi ama activeParticipants listesinde değilse, otomatik katıl
+        if (isOwner && !isInRoom) {
+          handleAutoJoinAsOwner(response.veri.oda.id);
+        }
       } else {
         setError('Sohbet odası bulunamadı.');
       }
@@ -76,21 +86,43 @@ const ChatRoomPage: NextPage = () => {
     }
   };
 
+  const handleAutoJoinAsOwner = async (roomId: string) => {
+    try {
+      const response = await chatroomService.joinChatRoom(roomId);
+      if (response.basarili) {
+        // Sessizce katıl, toast gösterme
+        loadRoom(roomId);
+      }
+    } catch (error) {
+      console.error('Oda sahibi otomatik katılma hatası:', error);
+    }
+  };
+
   const handleJoinRoom = async () => {
     if (!room || !user) return;
+    
+    console.log('Room page join attempt:', {
+      roomId: room.id,
+      userId: user.id,
+      roomStatus: room.status,
+      activeParticipants: room.activeParticipants
+    });
     
     try {
       setIsJoining(true);
       
       const response = await chatroomService.joinChatRoom(room.id);
+      console.log('Room page join response:', response);
       
       if (response.basarili) {
+        console.log('Room join successful, updating state');
         setHasJoined(true);
         toast.success('Sohbet odasına katıldınız!');
         // Reload room data to get updated participant count
         loadRoom(room.id);
       } else {
-        toast.error('Sohbet odasına katılamadınız.');
+        console.error('Room join failed:', response.mesaj);
+        toast.error(response.mesaj || 'Sohbet odasına katılamadınız.');
       }
     } catch (error) {
       console.error('Oda katılma hatası:', error);
@@ -164,29 +196,47 @@ const ChatRoomPage: NextPage = () => {
   if (error || !room) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="bg-white rounded-lg border shadow-sm p-8">
-            <div className="text-center">
-              <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
-              <h2 className="text-xl font-semibold mb-2">Sohbet Odası Bulunamadı</h2>
-              <p className="text-gray-600 mb-6">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+          <div className="max-w-md mx-auto text-center">
+            {/* Error Icon with Animation */}
+            <div className="relative mb-8">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center animate-pulse">
+                <AlertCircle className="h-12 w-12 text-white" />
+              </div>
+              <div className="absolute inset-0 w-24 h-24 mx-auto bg-red-200 rounded-full -z-10 blur-xl opacity-50"></div>
+            </div>
+
+            {/* Brand */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <MessageCircle className="h-6 w-6 text-blue-600" />
+              <h1 className="text-lg font-bold text-gray-900">WebsaChat</h1>
+            </div>
+
+            {/* Error Message */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Sohbet Odası Bulunamadı</h2>
+              <p className="text-gray-600 mb-2">
                 {error || 'Aradığınız sohbet odası mevcut değil veya erişim izniniz yok.'}
               </p>
-              <div className="space-x-4">
-                <button 
-                  onClick={() => router.back()}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg transition-colors duration-200"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Geri Dön
-                </button>
-                <button 
-                  onClick={() => router.push('/chat')}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 font-medium rounded-lg transition-colors duration-200"
-                >
-                  Sohbet Odalarına Git
-                </button>
-              </div>
+              <p className="text-gray-500 text-sm">Belki başka bir odaya katılmak istersiniz?</p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => router.push('/chat')}
+                className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 font-medium rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg"
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                Sohbet Odalarına Git
+              </button>
+              <button 
+                onClick={() => router.back()}
+                className="w-full inline-flex items-center justify-center px-6 py-3 border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 font-medium rounded-xl transition-all duration-200"
+              >
+                <ArrowLeft className="h-5 w-5 mr-2" />
+                Geri Dön
+              </button>
             </div>
           </div>
         </div>

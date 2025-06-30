@@ -78,11 +78,11 @@ const TransactionsPage = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMenuClick={() => setIsDrawerOpen(!isDrawerOpen)} />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
-          <div className="max-w-7xl mx-auto space-y-8">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white">Finansal İşlemler</h1>
-              <p className="mt-2 text-md text-slate-300">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 animate-fade-in">
+          <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+            <div className="px-1 sm:px-0">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Finansal İşlemler</h1>
+              <p className="mt-2 text-sm sm:text-md text-slate-300">
                 Jeton alımlarınızı, hediye gönderimlerinizi ve tüm bakiye hareketlerinizi buradan takip edebilirsiniz.
               </p>
             </div>

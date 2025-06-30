@@ -112,13 +112,37 @@ export const searchChatRooms = async (query: string, page = 1, limit = 20): Prom
 // Sohbet odasına katılma
 export const joinChatRoom = async (roomId: string, password?: string): Promise<ApiResponse> => {
   try {
-    const response = await apiClient.post(`/chatrooms/${roomId}/join`, { password });
+    console.log('joinChatRoom service called:', {
+      roomId,
+      hasPassword: !!password,
+      timestamp: new Date().toISOString()
+    });
+    
+    const requestData = { password };
+    console.log('Sending request to:', `/chatrooms/${roomId}/join`);
+    console.log('Request data:', requestData);
+    
+    const response = await apiClient.post(`/chatrooms/${roomId}/join`, requestData);
+    
+    console.log('joinChatRoom response received:', {
+      status: response.status,
+      data: response.data,
+      headers: response.headers
+    });
+    
     return response.data;
   } catch (error: any) {
-    return {
-      basarili: false,
-      mesaj: error.response?.data?.mesaj || 'Sohbet odasına katılırken bir hata oluştu.'
-    };
+    console.error('joinChatRoom service error:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL
+      }
+    });
+    throw error;
   }
 };
 

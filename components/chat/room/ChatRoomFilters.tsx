@@ -38,22 +38,22 @@ const ChatRoomFilters: React.FC<ChatRoomFiltersProps> = ({
         <div className="space-y-6">
           {/* Search Bar */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            {searchLoading && (
-              <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-              </div>
-            )}
-            <input
-              type="text"
-              placeholder="Hangi konuda sohbet etmek istiyorsunuz?"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 placeholder-gray-500 text-gray-900 shadow-sm"
-            />
-          </div>
+  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+    <Search className="h-5 w-5 text-gray-700" />
+  </div>
+  {searchLoading && (
+    <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+      <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+    </div>
+  )}
+  <input
+    type="text"
+    placeholder="Hangi konuda sohbet etmek istiyorsunuz?"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full pl-12 pr-12 py-4 bg-gray-50 hover:bg-gray-100 border-2 border-blue-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 placeholder-gray-600 text-gray-900 shadow-sm"
+  />
+</div>
 
           {/* Filters Row */}
           <div className="flex flex-wrap gap-4 items-center">

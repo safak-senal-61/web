@@ -129,35 +129,36 @@ const CoinPackages: React.FC<CoinPackagesProps> = ({ onPackageSelect, isLoading 
       {/* Background Glow */}
       <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl blur-3xl"></div>
       
-      <div className="relative bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl border border-slate-600/30 rounded-3xl p-8 shadow-2xl">
+      <div className="relative bg-gradient-to-br from-slate-900/90 via-slate-800/70 to-slate-900/90 backdrop-blur-xl border border-slate-600/30 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-3 sm:mb-4">
             Jeton Paketleri
           </h2>
-          <p className="text-slate-400 text-lg">Size özel hazırlanmış paketlerle avantajlı alışveriş yapın</p>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mt-4"></div>
+          <p className="text-slate-400 text-sm sm:text-lg px-2">Size özel hazırlanmış paketlerle avantajlı alışveriş yapın</p>
+          <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto mt-3 sm:mt-4"></div>
         </div>
 
         {/* Packages Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {samplePackages.map((pkg) => (
             <div 
               key={pkg.id} 
-              className="group relative overflow-hidden rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2"
+              className="group relative overflow-hidden rounded-2xl sm:rounded-3xl transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2"
             >
               {/* Card Glow Effect */}
-              <div className={`absolute -inset-1 bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} rounded-3xl blur-lg opacity-30 group-hover:opacity-60 transition-opacity duration-500`}></div>
+              <div className={`absolute -inset-1 bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} rounded-2xl sm:rounded-3xl blur-lg opacity-30 group-hover:opacity-60 transition-opacity duration-500`}></div>
               
               {/* Main Card */}
-              <div className="relative bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border border-slate-600/30 rounded-3xl p-5 h-full flex flex-col min-h-[400px]">
+              <div className="relative bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl border border-slate-600/30 rounded-2xl sm:rounded-3xl p-3 sm:p-5 h-full flex flex-col min-h-[320px] sm:min-h-[400px]">
                 
                 {/* Popular Badge */}
                 {pkg.isPopular && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                    <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
                       <FaFire className="w-2 h-2" />
-                      POPÜLER
+                      <span className="hidden sm:inline">POPÜLER</span>
+                      <span className="sm:hidden">POP</span>
                     </div>
                   </div>
                 )}
@@ -165,33 +166,34 @@ const CoinPackages: React.FC<CoinPackagesProps> = ({ onPackageSelect, isLoading 
                 {/* VIP Badge */}
                 {pkg.isVip && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                    <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
                       <FaCrown className="w-2 h-2" />
-                      VIP PAKET
+                      <span className="hidden sm:inline">VIP PAKET</span>
+                      <span className="sm:hidden">VIP</span>
                     </div>
                   </div>
                 )}
 
                 {/* Icon */}
-                <div className="relative mx-auto mb-4 mt-3">
-                  <div className={`absolute inset-0 bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} rounded-xl blur-md opacity-50`}></div>
-                  <div className={`relative bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} p-3 rounded-xl shadow-xl`}>
+                <div className="relative mx-auto mb-3 sm:mb-4 mt-2 sm:mt-3">
+                  <div className={`absolute inset-0 bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} rounded-lg sm:rounded-xl blur-md opacity-50`}></div>
+                  <div className={`relative bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-xl`}>
                     {getIcon(pkg.icon)}
                   </div>
                 </div>
 
                 {/* Package Info */}
                 <div className="text-center flex-grow flex flex-col">
-                  <h3 className="text-lg font-bold text-white mb-1">{pkg.name}</h3>
-                  <p className="text-slate-400 text-xs mb-4 h-8 flex items-center justify-center px-2">
+                  <h3 className="text-base sm:text-lg font-bold text-white mb-1">{pkg.name}</h3>
+                  <p className="text-slate-400 text-xs mb-3 sm:mb-4 h-6 sm:h-8 flex items-center justify-center px-1 sm:px-2 leading-tight">
                     {pkg.description}
                   </p>
 
                   {/* Coins Display */}
-                  <div className="bg-slate-800/50 rounded-xl p-3 mb-4 border border-slate-700/30 flex-grow flex flex-col justify-center">
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <FaCoins className="w-4 h-4 text-yellow-400" />
-                      <span className="text-2xl font-bold text-white">
+                  <div className="bg-slate-800/50 rounded-lg sm:rounded-xl p-2 sm:p-3 mb-3 sm:mb-4 border border-slate-700/30 flex-grow flex flex-col justify-center">
+                    <div className="flex items-center justify-center gap-1 sm:gap-2 mb-1">
+                      <FaCoins className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
+                      <span className="text-lg sm:text-2xl font-bold text-white">
                         {pkg.coins.toLocaleString()}
                       </span>
                     </div>
@@ -209,14 +211,14 @@ const CoinPackages: React.FC<CoinPackagesProps> = ({ onPackageSelect, isLoading 
                 {/* Purchase Button */}
                 <div className="mt-auto">
                   <div className="relative group/btn">
-                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} rounded-xl blur opacity-50 group-hover/btn:opacity-75 transition-opacity duration-300`}></div>
+                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} rounded-lg sm:rounded-xl blur opacity-50 group-hover/btn:opacity-75 transition-opacity duration-300`}></div>
                     <Button 
                       onClick={() => onPackageSelect(pkg.id)} 
                       disabled={isLoading}
-                      className={`relative w-full bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} hover:scale-105 active:scale-95 transition-all duration-200 border-0 text-white font-semibold py-3 rounded-xl shadow-xl h-auto`}
+                      className={`relative w-full bg-gradient-to-r ${pkg.gradient || 'from-blue-500 to-purple-500'} hover:scale-105 active:scale-95 transition-all duration-200 border-0 text-white font-semibold py-2 sm:py-3 rounded-lg sm:rounded-xl shadow-xl h-auto`}
                     >
                       <div className="flex flex-col items-center">
-                        <span className="text-base font-bold">
+                        <span className="text-sm sm:text-base font-bold">
                           ₺{pkg.price.toFixed(2)}
                         </span>
                         <span className="text-xs opacity-90 mt-0.5">Satın Al</span>
@@ -230,10 +232,10 @@ const CoinPackages: React.FC<CoinPackagesProps> = ({ onPackageSelect, isLoading 
         </div>
 
         {/* WIP Notice */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl px-6 py-3">
+        <div className="mt-8 sm:mt-12 text-center">
+          <div className="inline-flex items-center gap-2 sm:gap-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl sm:rounded-2xl px-3 sm:px-6 py-2 sm:py-3 mx-2">
             <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-            <span className="text-yellow-400 font-medium">
+            <span className="text-yellow-400 font-medium text-xs sm:text-sm">
               🚧 Yeni paketler yakında ekleniyor! Gelişim aşamasında...
             </span>
           </div>
