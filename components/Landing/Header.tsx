@@ -1,18 +1,24 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
-import { MessageSquare, Users, Gamepad2, Gift, Zap, Menu, X, Download, LogIn, Plus, Mic, Sparkles, Compass } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic'; // DİNAMİK İMPORT İÇİN GEREKLİ
+import { MessageSquare, Users, Gamepad2, Menu, X, Download, LogIn, Plus, Mic, Sparkles, Compass } from 'lucide-react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
-// 3D Model Component
-function Model(props) {
-  const { scene } = useGLTF('https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/iphone-x/model.gltf');
-  return <primitive object={scene} {...props} />;
-}
+// PhoneAnimation bileşenini sadece tarayıcıda yüklenecek şekilde (ssr: false) dinamik olarak import ediyoruz.
+const PhoneAnimation = dynamic(() => import('./PhoneAnimation'), {
+    ssr: false, // Sunucu tarafında render etmeyi engelle!
+    loading: () => (
+        <div className="flex h-full w-full items-center justify-center text-purple-500">
+            <svg className="animate-spin h-8 w-8 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    )
+});
 
-// TypewriterEffect component
+// TypewriterEffect bileşeni (değişiklik yok)
 interface TypewriterEffectProps {
   texts: string[];
 }
@@ -34,7 +40,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({ texts }) => {
         setTimeout(() => setIsDeleting(true), 2000);
       } else if (isDeleting && currentCharIndex === 0) {
         setIsDeleting(false);
-        setCurrentTextIndex((currentTextIndex + 1) % texts.length);
+        setCurrentTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
       }
     }, isDeleting ? 60 : 120);
 
@@ -48,6 +54,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({ texts }) => {
     </div>
   );
 };
+
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -222,8 +229,7 @@ const Header = () => {
             </div>
           </div>
         </div>
-      </nav>
-
+      </motion.nav>
       {/* Hero Section */}
       <div className="pt-32 pb-16 md:pt-40 md:pb-20 lg:pb-28">
         <motion.div 
@@ -286,16 +292,9 @@ const Header = () => {
               </motion.div>
             </div>
             
+            {/* Animasyonun çağrıldığı yer */}
             <div className="w-full lg:w-1/2 h-[400px] md:h-[500px] lg:h-[600px]">
-              <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-purple-500">Yükleniyor...</div>}>
-                <Canvas camera={{ position: [0, 0, 10], fov: 25 }}>
-                  <ambientLight intensity={1.5} />
-                  <directionalLight position={[10, 10, 5]} intensity={1} />
-                  <directionalLight position={[-10, -10, -5]} intensity={0.5} />
-                  <Model scale={1.8} />
-                  <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
-                </Canvas>
-              </Suspense>
+              <PhoneAnimation />
             </div>
           </div>
         </motion.div>
