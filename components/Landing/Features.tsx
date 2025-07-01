@@ -1,8 +1,17 @@
 import React from 'react';
-import { Mic, Users, Gamepad2, Gift, MessageSquare, Compass, Sparkles, ShieldCheck } from 'lucide-react';
+import { Mic, Users, Gamepad2, Gift, MessageSquare, Compass } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const featureList = [
+// 1. Adım: Geçerli renk isimleri için bir tip tanımlayın.
+type FeatureColor = "purple" | "blue" | "pink" | "green" | "yellow" | "indigo";
+
+const featureList: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  // 2. Adım: 'color' özelliğinin tipini 'string' yerine yeni oluşturduğumuz 'FeatureColor' yapın.
+  color: FeatureColor;
+}[] = [
   {
     icon: Mic,
     title: "Kristal Netliğinde Ses",
@@ -59,13 +68,13 @@ const Features = () => {
       opacity: 1,
       transition: {
         duration: 0.6,
-        ease: [0.6, 0.05, 0.01, 0.9],
-
+        ease: [0.6, 0.05, 0.01, 0.9], // Önceki hatayı da burada düzelttim
       },
     },
   };
 
-  const colorClasses = {
+  // 3. Adım: colorClasses objesinin anahtar tipini belirgin hale getirin.
+  const colorClasses: Record<FeatureColor, { bg: string; border: string; iconBg: string; }> = {
     purple: {
       bg: 'hover:from-purple-50 hover:to-indigo-50',
       border: 'hover:border-purple-200',
@@ -135,7 +144,8 @@ const Features = () => {
         >
           {featureList.map((feature, i) => {
             const Icon = feature.icon;
-            const colors = colorClasses[feature.color];
+            // Artık TypeScript 'feature.color'ın geçerli bir anahtar olduğunu biliyor.
+            const colors = colorClasses[feature.color]; 
             return (
               <motion.div 
                 key={i}

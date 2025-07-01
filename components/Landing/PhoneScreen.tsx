@@ -1,6 +1,7 @@
 import React from 'react';
 import { RoundedBox, Text } from '@react-three/drei';
 import { Color } from 'three';
+import * as THREE from 'three';
 
 // WebSaChat mobil uygulaması için ekran içeriği
 const PhoneScreen = () => {
@@ -22,7 +23,6 @@ const PhoneScreen = () => {
           color="#ffffff"
           anchorX="center"
           anchorY="middle"
-          font="/fonts/Inter-Bold.woff"
         >
           WebSaChat
         </Text>
