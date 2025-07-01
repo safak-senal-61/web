@@ -1,11 +1,12 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { Star, MessageSquare, Users, Gamepad2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const testimonials = [
   {
     id: 1,
     name: 'Mehmet Y.',
-    role: 'Öğrenci',
+    role: 'WebsaChat Kullanıcısı',
     avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     quote: 'WebsaChat sayesinde uzaktaki arkadaşlarımla her gün sesli sohbet ediyorum. Mini oyunlar da çok eğlenceli!',
     stars: 5
@@ -13,7 +14,7 @@ const testimonials = [
   {
     id: 2,
     name: 'Ayşe K.',
-    role: 'Grafik Tasarımcı',
+    role: 'Topluluk Yöneticisi',
     avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     quote: 'İş arkadaşlarımla iletişim kurmak için harika bir platform. Hem güvenli hem de kullanımı çok kolay!',
     stars: 5
@@ -21,7 +22,7 @@ const testimonials = [
   {
     id: 3,
     name: 'Emre T.',
-    role: 'Yazılım Geliştirici',
+    role: 'Oyun Tutkunu',
     avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     quote: 'WebsaChat ile yeni arkadaşlar edindim ve hobilerimi paylaşabildiğim bir topluluk buldum. Sesli sohbet kalitesi inanılmaz!',
     stars: 4
@@ -37,7 +38,7 @@ const testimonials = [
   {
     id: 5,
     name: 'Ali R.',
-    role: 'Oyun Tutkunu',
+    role: 'Sosyal Medya Meraklısı',
     avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     quote: 'Mini oyunlar o kadar eğlenceli ki saatlerce arkadaşlarımla oynuyoruz. Kesinlikle en iyi sosyal medya uygulaması!',
     stars: 5
@@ -45,6 +46,28 @@ const testimonials = [
 ];
 
 const Testimonials = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: [0.6, 0.05, -0.01, 0.9],
+      },
+    },
+  };
+
   return (
     <section id="testimonials" className="py-8 md:py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
       {/* Background decorations */}
@@ -66,7 +89,7 @@ const Testimonials = () => {
         .infinite-slide {
           animation: infiniteSlide 60s linear infinite;
           display: flex;
-          width: calc(100% * 2);
+          width: calc(100% * 2); /* Duplicate content for seamless loop */
         }
         
         .infinite-slide:hover {
@@ -88,9 +111,15 @@ const Testimonials = () => {
       
       <div className="container mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="text-center mb-8 md:mb-16">
+        <motion.div 
+          className="text-center mb-8 md:mb-16"
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7 }}
+        >
           <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl mb-4 md:mb-6 shadow-lg">
-            <Star className="w-6 h-6 md:w-8 md:h-8 text-white fill-white" />
+            <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-white fill-white" />
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 px-2">
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -100,16 +129,23 @@ const Testimonials = () => {
           <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-2 md:px-4 leading-relaxed">
             Binlerce mutlu kullanıcımızın deneyimlerini keşfedin ve topluluğumuza katılın
           </p>
-        </div>
+        </motion.div>
 
         {/* Testimonials Slider */}
-        <div className="relative overflow-hidden rounded-2xl">
+        <motion.div 
+          className="relative overflow-hidden rounded-2xl"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+        >
           <div className="infinite-slide">
             {/* İlk set */}
             {testimonials.map((testimonial) => (
-              <div
+              <motion.div
                 key={`first-${testimonial.id}`}
                 className="min-w-[260px] sm:min-w-[300px] md:min-w-[380px] lg:min-w-[420px] px-2 sm:px-3 flex-shrink-0"
+                variants={itemVariants}
               >
                 <div className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-500 h-full flex flex-col border border-white/50 hover:border-purple-200 group hover:scale-105">
                   {/* Header */}
@@ -163,14 +199,15 @@ const Testimonials = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
             
             {/* İkinci set (sonsuz döngü için) */}
             {testimonials.map((testimonial) => (
-              <div
+              <motion.div
                 key={`second-${testimonial.id}`}
                 className="min-w-[260px] sm:min-w-[300px] md:min-w-[380px] lg:min-w-[420px] px-2 sm:px-3 flex-shrink-0"
+                variants={itemVariants}
               >
                 <div className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-500 h-full flex flex-col border border-white/50 hover:border-purple-200 group hover:scale-105">
                   {/* Header */}
@@ -224,10 +261,10 @@ const Testimonials = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
         
         {/* Bottom info */}
         <div className="text-center mt-6 md:mt-12">
